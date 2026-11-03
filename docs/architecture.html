@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en" style="margin: 0; padding: 0">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Full-Stack Portfolio &amp; Blog — 系统架构与数据关系</title>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body style="margin: 0">
+    <div id="architecture-diagram">
+<div style="width:100%;box-sizing:border-box;font-family:ui-sans-serif,system-ui,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;color:#0f172a;background:#f8fafc;padding:20px;line-height:1.5;">
+
+  <header style="margin-bottom:16px;">
+    <h1 style="margin:0;font-size:22px;font-weight:700;letter-spacing:-0.01em;">Capstone 项目架构：React SPA → Express API → MongoDB Atlas</h1>
+    <p style="margin:6px 0 0;font-size:14px;color:#475569;">
+      图中每一个方块都对应仓库里的一个真实模块；括号内是文件路径。数字为实际条目数，非估算。
+    </p>
+  </header>
+
+  <!-- legend -->
+  <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;font-size:13px;color:#475569;">
+    <span style="font-weight:600;color:#0f172a;">图例</span>
+    <span>──▶ 请求（含 JWT）</span>
+    <span>◀── JSON 响应</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:10px;border:1px solid #94a3b8;background:#f1f5f9;border-radius:3px;"></span>客户端层</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:10px;border:1px solid #0d9488;background:#ccfbf1;border-radius:3px;"></span>服务端层</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:10px;border:1px solid #334155;background:#e2e8f0;border-radius:3px;"></span>数据层</span>
+  </div>
+
+  <!-- ==================== 1. client layer ==================== -->
+  <section style="margin-top:18px;">
+    <p style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#0f766e;">① 客户端 · Browser</p>
+    <div style="border:1px solid #0d9488;border-left:5px solid #0d9488;border-radius:12px;background:#ffffff;padding:14px 16px;">
+      <p style="margin:0;font-size:15px;font-weight:700;">React 19 SPA <span style="font-weight:400;color:#64748b;font-size:13px;">(client/src · Vite 8 · Tailwind CSS 4)</span></p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;">
+
+        <div style="flex:1 1 220px;min-width:200px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:10px 12px;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0f172a;">路由 <span style="font-weight:400;color:#64748b;">App.jsx</span></p>
+          <p style="margin:0;font-size:13px;color:#334155;font-family:ui-monospace,Consolas,monospace;">
+            / · /projects · /projects/:id<br />/blog · /blog/:id · /contact<br />/login · /register<br />
+            <span style="color:#b45309;font-weight:700;">/admin（受保护）</span>
+          </p>
+        </div>
+
+        <div style="flex:1 1 220px;min-width:200px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:10px 12px;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0f172a;">全局状态 <span style="font-weight:400;color:#64748b;">context/AuthContext.jsx</span></p>
+          <p style="margin:0;font-size:13px;color:#334155;">
+            token / user / login / register / logout<br />
+            首次加载用 <span style="font-family:ui-monospace,Consolas,monospace;">GET /api/users/me</span> 恢复会话
+          </p>
+        </div>
+
+        <div style="flex:1 1 220px;min-width:200px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:10px 12px;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0f172a;">HTTP 客户端 <span style="font-weight:400;color:#64748b;">api/client.js</span></p>
+          <p style="margin:0;font-size:13px;color:#334155;">
+            axios 实例 + 请求拦截器自动附加<br />
+            <span style="font-family:ui-monospace,Consolas,monospace;">Authorization: Bearer &lt;token&gt;</span>
+          </p>
+        </div>
+
+        <div style="flex:1 1 220px;min-width:200px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:10px 12px;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0f172a;">页面组件 <span style="font-weight:400;color:#64748b;">pages/ + components/</span></p>
+          <p style="margin:0;font-size:13px;color:#334155;">
+            10 个页面 · 12 个可复用组件<br />
+            受保护路由守卫 <span style="font-family:ui-monospace,Consolas,monospace;">ProtectedRoute.jsx</span>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <p style="margin:10px 0;text-align:center;font-size:15px;color:#0f766e;font-weight:700;">──▶ HTTPS / JSON API（22 个路由：11 公开 · 11 需 JWT）</p>
+
+  <!-- ==================== 2. server layer ==================== -->
+  <section>
+    <p style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#0f766e;">② 服务端 · Express (Node.js)</p>
+    <div style="border:1px solid #0d9488;border-left:5px solid #0d9488;border-radius:12px;background:#ffffff;padding:14px 16px;">
+
+      <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#0f172a;">中间件链 <span style="font-weight:400;color:#64748b;">app.js</span></p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:12px;font-family:ui-monospace,Consolas,monospace;background:#f0fdfa;border:1px solid #99f6e4;color:#115e59;border-radius:6px;padding:3px 8px;">helmet()</span>
+        <span style="font-size:12px;font-family:ui-monospace,Consolas,monospace;background:#f0fdfa;border:1px solid #99f6e4;color:#115e59;border-radius:6px;padding:3px 8px;">cors(CLIENT_URL)</span>
+        <span style="font-size:12px;font-family:ui-monospace,Consolas,monospace;background:#f0fdfa;border:1px solid #99f6e4;color:#115e59;border-radius:6px;padding:3px 8px;">express.json()</span>
+        <span style="font-size:12px;font-family:ui-monospace,Consolas,monospace;background:#f0fdfa;border:1px solid #99f6e4;color:#115e59;border-radius:6px;padding:3px 8px;">morgan()</span>
+        <span style="font-size:12px;font-family:ui-monospace,Consolas,monospace;background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:6px;padding:3px 8px;">protect()</span>
+        <span style="font-size:12px;font-family:ui-monospace,Consolas,monospace;background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:6px;padding:3px 8px;">authorizeOwner(model,'author')</span>
+        <span style="font-size:12px;font-family:ui-monospace,Consolas,monospace;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:6px;padding:3px 8px;">notFound() → errorHandler()</span>
+      </div>
+      <p style="margin:10px 0 0;font-size:13px;color:#475569;">
+        <strong>protect()</strong>：校验 <code style="font-family:ui-monospace,Consolas,monospace;">Authorization</code> 头中的 JWT → 查库 → 挂载 <code style="font-family:ui-monospace,Consolas,monospace;">req.user</code>，失败返回 401；
+        <strong>authorizeOwner()</strong>：文档作者 ≠ 当前用户时返回 403（仅 <span style="font-family:ui-monospace,Consolas,monospace;">PUT/DELETE /api/blog/:id</span> 使用）。
+      </p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;">
+
+        <div style="flex:1 1 260px;min-width:240px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:10px 12px;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0f172a;">路由 routes/ <span style="font-weight:400;color:#64748b;">4 个文件</span></p>
+          <p style="margin:0;font-size:13px;color:#334155;font-family:ui-monospace,Consolas,monospace;">
+            userRoutes.js → /api/users<br />
+            projectRoutes.js → /api/projects<br />
+            blogRoutes.js → /api/blog<br />
+            messageRoutes.js → /api/contact
+          </p>
+        </div>
+
+        <div style="flex:1 1 260px;min-width:240px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:10px 12px;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0f172a;">控制器 controllers/ <span style="font-weight:400;color:#64748b;">5 个文件</span></p>
+          <p style="margin:0;font-size:13px;color:#334155;font-family:ui-monospace,Consolas,monospace;">
+            user · project · blog · comment · message
+          </p>
+          <p style="margin:6px 0 0;font-size:13px;color:#475569;">
+            只负责业务逻辑与状态码；异步错误交给 <code style="font-family:ui-monospace,Consolas,monospace;">express-async-handler</code> 转交中央错误中间件。
+          </p>
+        </div>
+
+        <div style="flex:1 1 260px;min-width:240px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:10px 12px;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0f172a;">模型 models/ <span style="font-weight:400;color:#64748b;">5 个文件</span></p>
+          <p style="margin:0;font-size:13px;color:#334155;font-family:ui-monospace,Consolas,monospace;">
+            User · Project · BlogPost · Comment · Message
+          </p>
+          <p style="margin:6px 0 0;font-size:13px;color:#475569;">
+            Mongoose schema 校验 + bcrypt 哈希钩子 + <code style="font-family:ui-monospace,Consolas,monospace;">populate()</code> 关联查询。
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <p style="margin:10px 0;text-align:center;font-size:15px;color:#0f766e;font-weight:700;">──▶ Mongoose ODM（MONGODB_URI，凭据仅存于 .env）</p>
+
+  <!-- ==================== 3. data layer ==================== -->
+  <section>
+    <p style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#0f766e;">③ 数据层 · MongoDB Atlas</p>
+    <div style="border:1px solid #334155;border-left:5px solid #334155;border-radius:12px;background:#ffffff;padding:14px 16px;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <span style="font-size:13px;font-family:ui-monospace,Consolas,monospace;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;">users</span>
+        <span style="font-size:13px;font-family:ui-monospace,Consolas,monospace;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;">projects</span>
+        <span style="font-size:13px;font-family:ui-monospace,Consolas,monospace;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;">blogposts</span>
+        <span style="font-size:13px;font-family:ui-monospace,Consolas,monospace;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;">comments</span>
+        <span style="font-size:13px;font-family:ui-monospace,Consolas,monospace;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;">messages</span>
+      </div>
+      <p style="margin:10px 0 0;font-size:13px;color:#475569;">所有集合由 Mongoose 按 schema 写入，唯一索引保护 <span style="font-family:ui-monospace,Consolas,monospace;">users.email</span> 与 <span style="font-family:ui-monospace,Consolas,monospace;">users.username</span>（重复插入返回 400）。</p>
+    </div>
+  </section>
+
+  <!-- ==================== 4. data relationships ==================== -->
+  <section style="margin-top:20px;">
+    <p style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#0f766e;">④ 数据关系（ObjectId ref）</p>
+    <div style="border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;padding:14px 16px;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:13px;">
+
+        <div style="flex:1 1 240px;min-width:220px;border:1px solid #99f6e4;border-radius:10px;padding:10px 12px;background:#f0fdfa;">
+          <p style="margin:0;font-weight:700;color:#115e59;">User ──1 : N──▶ Project</p>
+          <p style="margin:4px 0 0;color:#334155;font-family:ui-monospace,Consolas,monospace;font-size:12px;">Project.user → User</p>
+          <p style="margin:4px 0 0;color:#475569;">列表与详情用 populate('user','username email')</p>
+        </div>
+
+        <div style="flex:1 1 240px;min-width:220px;border:1px solid #99f6e4;border-radius:10px;padding:10px 12px;background:#f0fdfa;">
+          <p style="margin:0;font-weight:700;color:#115e59;">User ──1 : N──▶ BlogPost</p>
+          <p style="margin:4px 0 0;color:#334155;font-family:ui-monospace,Consolas,monospace;font-size:12px;">BlogPost.author → User</p>
+          <p style="margin:4px 0 0;color:#475569;">作者字段同时是 403 鉴权依据</p>
+        </div>
+
+        <div style="flex:1 1 240px;min-width:220px;border:1px solid #99f6e4;border-radius:10px;padding:10px 12px;background:#f0fdfa;">
+          <p style="margin:0;font-weight:700;color:#115e59;">BlogPost ──1 : N──▶ Comment</p>
+          <p style="margin:4px 0 0;color:#334155;font-family:ui-monospace,Consolas,monospace;font-size:12px;">Comment.post → BlogPost</p>
+          <p style="margin:4px 0 0;color:#475569;">删除文章时级联删除其评论</p>
+        </div>
+
+        <div style="flex:1 1 240px;min-width:220px;border:1px solid #99f6e4;border-radius:10px;padding:10px 12px;background:#f0fdfa;">
+          <p style="margin:0;font-weight:700;color:#115e59;">User ──1 : N──▶ Comment</p>
+          <p style="margin:4px 0 0;color:#334155;font-family:ui-monospace,Consolas,monospace;font-size:12px;">Comment.author → User</p>
+          <p style="margin:4px 0 0;color:#475569;">评论列表 populate('author','username')</p>
+        </div>
+
+        <div style="flex:1 1 240px;min-width:220px;border:1px dashed #cbd5e1;border-radius:10px;padding:10px 12px;background:#f8fafc;">
+          <p style="margin:0;font-weight:700;color:#334155;">Message（独立集合）</p>
+          <p style="margin:4px 0 0;color:#334155;font-family:ui-monospace,Consolas,monospace;font-size:12px;">POST /api/contact → Message</p>
+          <p style="margin:4px 0 0;color:#475569;">访客留言无需账号，因此不建关联</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 5. request walkthrough ==================== -->
+  <section style="margin-top:20px;">
+    <p style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#0f766e;">⑤ 两条代表性请求路径</p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px;">
+
+      <div style="flex:1 1 320px;min-width:280px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;padding:14px 16px;">
+        <p style="margin:0;font-size:14px;font-weight:700;color:#0f172a;">A. 公开读取：博客详情</p>
+        <p style="margin:2px 0 10px;font-size:13px;color:#64748b;font-family:ui-monospace,Consolas,monospace;">GET /api/blog/:id</p>
+        <ol style="margin:0;padding-left:20px;font-size:13px;color:#334155;">
+          <li>BlogDetail 页面在 useEffect 中发起请求</li>
+          <li>axios baseURL 取 <span style="font-family:ui-monospace,Consolas,monospace;">VITE_API_URL</span>，无 token 也能访问</li>
+          <li>cors 放行 → blogRoutes → getPostById</li>
+          <li><span style="font-family:ui-monospace,Consolas,monospace;">BlogPost.findById().populate('author')</span> + 查询该文章的全部 Comment</li>
+          <li>返回 <span style="font-family:ui-monospace,Consolas,monospace;">200 {success,data:{…,author,comments}}</span>，页面渲染作者与评论</li>
+        </ol>
+      </div>
+
+      <div style="flex:1 1 320px;min-width:280px;border:1px solid #fecaca;border-radius:12px;background:#fffdfd;padding:14px 16px;">
+        <p style="margin:0;font-size:14px;font-weight:700;color:#0f172a;">B. 受保护写入：删除他人文章</p>
+        <p style="margin:2px 0 10px;font-size:13px;color:#64748b;font-family:ui-monospace,Consolas,monospace;">DELETE /api/blog/:id</p>
+        <ol style="margin:0;padding-left:20px;font-size:13px;color:#334155;">
+          <li>AdminDashboard → PostManager 调用 <span style="font-family:ui-monospace,Consolas,monospace;">api.delete()</span></li>
+          <li>请求拦截器附加 <span style="font-family:ui-monospace,Consolas,monospace;">Bearer &lt;JWT&gt;</span></li>
+          <li><strong>protect()</strong>：验签 + 查库，失败 → <span style="color:#b91c1c;font-weight:700;">401</span></li>
+          <li><strong>authorizeOwner()</strong>：<span style="font-family:ui-monospace,Consolas,monospace;">post.author ≠ req.user._id</span> → <span style="color:#b91c1c;font-weight:700;">403</span></li>
+          <li>作者本人：删除评论 + 删除文章 → <span style="font-family:ui-monospace,Consolas,monospace;">200</span>；否则 errorHandler 输出统一错误 JSON</li>
+        </ol>
+      </div>
+
+    </div>
+  </section>
+
+  <p style="margin:16px 0 0;font-size:12px;color:#64748b;">
+    依据：本仓库 server/ 与 client/ 源码，以及 <span style="font-family:ui-monospace,Consolas,monospace;">server/tests/api.test.js</span> 中 16 项接口测试的实际通过结果。示意结构均与代码一致，未使用任何推测性数据。
+  </p>
+
+</div>
+    </div>
+  </body>
+</html>

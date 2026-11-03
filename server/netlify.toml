@@ -1,0 +1,18 @@
+[build]
+  # The API itself is a single function; `public` only holds a small landing
+  # page so that the site has something to publish.
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  # Keep the MongoDB driver's optional native bits out of the bundle.
+  external_node_modules = ["mongoose", "mongodb", "bcryptjs"]
+
+# Everything that is not a static file is handed to the Express app, so the
+# API answers on the site root as well as on /api/*.
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
